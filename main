@@ -1,0 +1,54 @@
+import java.net.InetAddress;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class IPAddressCalculator {
+    
+    public static void main(String[] args) {
+        String ipAddress = "192.168.0.10";
+        String subnetMask = "255.255.255.0";
+        
+        if (!isValidIPAddress(ipAddress)) {
+            System.out.println("Adresse IP invalide");
+            return;
+        }
+        
+        if (!isValidIPAddress(subnetMask)) {
+            System.out.println("Masque de sous-réseau invalide");
+            return;
+        }
+        
+        try {
+            InetAddress inetAddress = InetAddress.getByName(ipAddress);
+            InetAddress subnet = InetAddress.getByName(subnetMask);
+            
+            byte[] ipBytes = inetAddress.getAddress();
+            byte[] subnetBytes = subnet.getAddress();
+            
+            byte[] networkAddress = new byte[ipBytes.length];
+            
+            for (int i = 0; i < ipBytes.length; i++) {
+                networkAddress[i] = (byte) (ipBytes[i] & subnetBytes[i]);
+            }
+            
+            String networkAddressString = InetAddress.getByAddress(networkAddress).getHostAddress();
+            System.out.println("Adresse IP : " + ipAddress);
+            System.out.println("Masque de sous-réseau : " + subnetMask);
+            System.out.println("Adresse réseau : " + networkAddressString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static boolean isValidIPAddress(String ipAddress) {
+        String ipAddressPattern = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                                  "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                                  "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                                  "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+        
+        Pattern pattern = Pattern.compile(ipAddressPattern);
+        Matcher matcher = pattern.matcher(ipAddress);
+        
+        return matcher.matches();
+    }
+}
